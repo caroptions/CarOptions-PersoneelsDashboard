@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { FileText, Download } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { FileText, Download, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { deletePayslip } from '@/app/actions/deletePayslip';
 
 export function PayslipsTabs({ profiles, payslips }: { profiles: any[], payslips: any[] }) {
   const [activeTab, setActiveTab] = useState(profiles[0]?.id || null);
+  const [isPending, startTransition] = useTransition();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const activePayslips = payslips.filter(p => p.user_id === activeTab);
 
@@ -19,6 +22,20 @@ export function PayslipsTabs({ profiles, payslips }: { profiles: any[], payslips
     } else {
       alert("Er is een fout opgetreden bij het openen van de loonstrook.");
     }
+  };
+
+  const handleDelete = async (payslipId: string, filePath: string) => {
+    if (!confirm('Weet je zeker dat je deze loonstrook wilt verwijderen? Deze actie is onomkeerbaar.')) {
+      return;
+    }
+    setDeletingId(payslipId);
+    startTransition(async () => {
+      const result = await deletePayslip(payslipId, filePath);
+      if (result.error) {
+        alert(result.error);
+      }
+      setDeletingId(null);
+    });
   };
 
   if (!profiles.length) {
@@ -67,13 +84,28 @@ export function PayslipsTabs({ profiles, payslips }: { profiles: any[], payslips
                     <p className="text-xs text-gray-500">{new Date(payslip.created_at).toLocaleDateString('nl-NL')}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDownload(payslip.file_path)}
-                  className="shrink-0 text-gray-400 hover:text-indigo-400 p-2 rounded-md hover:bg-[#111827] transition-colors"
-                  title="Downloaden / Bekijken"
-                >
-                  <Download className="w-4 h-4" />
-                </button>
+                <div className="flex shrink-0 space-x-1">
+                  <button
+                    onClick={() => handleDownload(payslip.file_path)}
+                    className="text-gray-400 hover:text-indigo-400 p-2 rounded-md hover:bg-[#111827] transition-colors"
+                    title="Downloaden / Bekijken"
+                    disabled={deletingId === payslip.id}
+                  >
+                    <Download className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(payslip.id, payslip.file_path)}
+                    disabled={deletingId === payslip.id}
+                    className="text-gray-500 hover:text-red-400 p-2 rounded-md hover:bg-red-500/10 transition-colors"
+                    title="Verwijderen"
+                  >
+                    {deletingId === payslip.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <X className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
