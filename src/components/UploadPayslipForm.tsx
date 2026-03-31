@@ -7,6 +7,7 @@ import { CheckCircle, AlertCircle, Upload } from 'lucide-react';
 export function UploadPayslipForm({ profiles }: { profiles: any[] }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -14,6 +15,13 @@ export function UploadPayslipForm({ profiles }: { profiles: any[] }) {
     setMessage(null);
 
     const formData = new FormData(e.currentTarget);
+    const file = formData.get('file') as File;
+    
+    if (!file || file.size === 0) {
+      setMessage({ type: 'error', text: 'Selecteer a.u.b. een bestand.' });
+      setLoading(false);
+      return;
+    }
     
     try {
       const result = await uploadPayslip(formData);
@@ -22,6 +30,7 @@ export function UploadPayslipForm({ profiles }: { profiles: any[] }) {
       } else if (result?.success) {
         setMessage({ type: 'success', text: 'Loonstrook succesvol geüpload en gekoppeld!' });
         (e.target as HTMLFormElement).reset();
+        setSelectedFileName(null);
       }
     } catch (err) {
       setMessage({ type: 'error', text: 'Er is een onverwachte fout opgetreden.' });
@@ -79,16 +88,33 @@ export function UploadPayslipForm({ profiles }: { profiles: any[] }) {
         <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-700 px-6 pt-5 pb-6 bg-[#0f172a]/50">
           <div className="space-y-1 text-center">
             <Upload className="mx-auto h-8 w-8 text-gray-500" />
-            <div className="flex text-sm text-gray-400 justify-center">
+            <div className="flex text-sm text-gray-400 justify-center mt-2">
               <label
                 htmlFor="file"
                 className="relative cursor-pointer rounded-md font-medium text-indigo-400 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-300"
               >
                 <span>Selecteer een bestand</span>
-                <input id="file" name="file" type="file" required accept=".pdf,image/*" className="sr-only" />
+                <input 
+                  id="file" 
+                  name="file" 
+                  type="file" 
+                  accept=".pdf,image/*" 
+                  className="sr-only" 
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setSelectedFileName(e.target.files[0].name);
+                    } else {
+                      setSelectedFileName(null);
+                    }
+                  }}
+                />
               </label>
             </div>
-            <p className="text-xs text-gray-500">PDF of Afbeelding tot 5MB</p>
+            {selectedFileName ? (
+              <p className="text-sm text-teal-400 mt-2 font-medium">{selectedFileName}</p>
+            ) : (
+              <p className="text-xs text-gray-500 mt-1">PDF of Afbeelding</p>
+            )}
           </div>
         </div>
       </div>
