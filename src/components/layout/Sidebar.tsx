@@ -3,20 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Users, Clock, FileText, LogOut } from 'lucide-react';
-import Image from 'next/image';
 
 export function Sidebar() {
     return (
         <div className="w-64 bg-[#0F172A] text-white h-screen flex flex-col fixed left-0 top-0 z-50">
             <div className="p-6 border-b border-gray-800">
                 <Link href="/" className="block relative w-32 h-10 mb-2">
-                    <Image
-                        src="/logo_white.png"
-                        alt="CarOptions"
-                        fill
-                        className="object-contain"
-                        priority
-                    />
+                    <img src="/personeel/logo_white.png" alt="CarOptions Logo" className="h-8 object-contain object-left" />
                 </Link>
                 <p className="text-xs text-indigo-300 font-medium tracking-wide">Personeelsdashboard</p>
             </div>
