@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { UploadPayslipForm } from '@/components/UploadPayslipForm';
+import { PayslipsTabs } from '@/components/PayslipsTabs';
 import { FileText } from 'lucide-react';
 
 export const revalidate = 0;
@@ -10,10 +11,16 @@ export default async function LoonstrokenPage() {
     .select('id, full_name, email')
     .order('full_name', { ascending: true });
 
+  const { data: payslips, error: payslipsError } = await supabase
+    .from('payslips')
+    .select('*')
+    .order('created_at', { ascending: false });
+
   const safeProfiles = profiles || [];
+  const safePayslips = payslips || [];
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <div className="pb-5 border-b border-gray-800 flex justify-between items-end">
         <div>
           <h3 className="text-2xl font-bold leading-6 text-white">Loonstroken Beheer</h3>
@@ -63,6 +70,8 @@ export default async function LoonstrokenPage() {
           </ul>
         </div>
       </div>
+
+      <PayslipsTabs profiles={safeProfiles} payslips={safePayslips} />
     </div>
   );
 }
