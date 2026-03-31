@@ -6,9 +6,9 @@ import { revalidatePath } from 'next/cache';
 export async function uploadPayslip(formData: FormData) {
   const file = formData.get('file') as File;
   const userId = formData.get('userId') as string;
-  const title = formData.get('title') as string;
+  const period_name = formData.get('period_name') as string;
 
-  if (!file || !userId || !title) {
+  if (!file || !userId || !period_name) {
     return { error: 'Alle velden zijn verplicht.' };
   }
 
@@ -27,18 +27,14 @@ export async function uploadPayslip(formData: FormData) {
       return { error: `Fout bij uploaden van bestand: ${uploadError.message}` };
     }
 
-    // Get the public URL for the file
-    const { data: publicData } = supabase.storage
-      .from('payslips')
-      .getPublicUrl(fileName);
 
     // Save to database
     const { error: insertError } = await supabase
       .from('payslips')
       .insert({
         user_id: userId,
-        title,
-        file_url: publicData.publicUrl,
+        period_name,
+        file_path: fileName,
       });
 
     if (insertError) {

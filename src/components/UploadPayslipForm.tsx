@@ -19,7 +19,7 @@ export function UploadPayslipForm({ profiles }: { profiles: any[] }) {
     setLoading(true);
     setMessage(null);
 
-    // Grab normal form fields (userId, title)
+    // Grab normal form fields (userId, period_name)
     const formData = new FormData(e.currentTarget);
     
     // Explicitly add our governed file state
@@ -107,13 +107,13 @@ export function UploadPayslipForm({ profiles }: { profiles: any[] }) {
       </div>
 
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1.5">
-          Titel van Loonstrook
+        <label htmlFor="period_name" className="block text-sm font-medium text-gray-300 mb-1.5">
+          Periode van Loonstrook
         </label>
         <input
           type="text"
-          id="title"
-          name="title"
+          id="period_name"
+          name="period_name"
           required
           placeholder="bijv. Loonstrook Maart 2026"
           className="block w-full rounded-md border border-gray-700 bg-[#0f172a] px-3 py-2 text-white shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:text-sm placeholder:text-gray-500"
